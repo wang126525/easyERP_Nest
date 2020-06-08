@@ -2,102 +2,118 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import CommonUtils from '../common/common.util';
-import {
-  UserEntity,
-  UserLogin,
-  LoginParams,
-  RegisterParams,
-} from './goods.interface';
-import { MsgResult } from '../common/common.dto';
+import {goods, goodsParams,GoodsQc,goodsDto} from './goods.interface';
+import { MsgResult, Page } from '../common/common.dto';
 // import { promises } from 'dns';
 import * as jwt from 'jsonwebtoken';
 import { type } from 'os';
 import { types } from 'util';
 
 @Injectable()
-export class LoginService {
-  constructor(
-    @InjectModel('User') private readonly userModel: Model<UserEntity>,
-    @InjectModel('Login') private readonly loginModel: Model<UserLogin>,
-  ) {}
-  async login(params: LoginParams): Promise<MsgResult> {
-    const loginUser: UserLogin = await this.loginModel
-      .findOne({ username: params.username, password: params.password })
-      .exec();
-    if (loginUser) {
-      console.log(params, loginUser);
-      // const userInfo: UserEntity = await this.userModel
-      //   .findOne({ name: params.username })
-      //   .exec();
-      const info = {
-        username: loginUser.username,
-        userole: loginUser.userole,
-        addtime: loginUser.addtime,
-        edittime: loginUser.edittime
-      };
-      const token = jwt.sign(info, '123456789' /*秘钥*/, {
-        expiresIn: '7d' /*过期时间*/,
-      });
-      return Promise.resolve(new MsgResult(true, 'success', { userInfo:info, token }));
-    } else {
-      return Promise.resolve(new MsgResult(false, '用户名或密码错误'));
+export class GoodsService {
+  constructor(@InjectModel('goods') private readonly goodsModel: Model<goods>) {}
+  async add(params: goodsParams): Promise<MsgResult> {
+    if(params.goodsName==""||params.goodsType==""||params.goodsModel==""){
+      return Promise.resolve(new MsgResult(false, '参数错误'));
     }
-  }
-  async getInfo(query: LoginParams): Promise<MsgResult> {
-    if (query.username) {
-      const userInfo: UserEntity = await this.userModel
-        .findOne({ name: query.username })
-        .exec();
-      console.log('userInfo2', userInfo);
-      return Promise.resolve(new MsgResult(true, 'success', userInfo));
-    } else {
-      return Promise.resolve(new MsgResult(false, '参数错误！'));
-    }
-  }
-  async register(params: RegisterParams): Promise<MsgResult> {
-    console.log(params);
-    const userIsExist: UserLogin = await this.loginModel
-      .findOne({ username: params.username })
+    const goods: goods = await this.goodsModel
+      .findOne({ goodsName: params.goodsName, goodsModel: params.goodsModel })
       .exec();
-    if (!userIsExist) {
-      if (params.password != '' && params.username != '' && params.userole != ''&& params.addtime!=''&&params.edittime!='') {
+    if (!goods) {
+      console.log(params, goods);
         const id = new Types.ObjectId();
         try {
-          const result: UserLogin = await this.loginModel.create({
+          const result: goods = await this.goodsModel.create({
             _id: id,
-            username: params.username,
-            password: params.password,
-            userole: params.userole,
-            addtime:params.addtime,
-            edittime:params.edittime
+            goodsNum: id,
+            goodsName: params.goodsName,
+            goodsType: params.goodsType,
+            goodsUnit: params.goodsUnit,
+            goodsModel: params.goodsModel,
+            goodsSpec: params.goodsSpec,
+            stockPrice: params.stockPrice,
+            goodsPrice: params.goodsPrice,
+            supplierName: params.supplierName,
+            goodsAddTime: params.goodsAddTime,
+            goodsState:true
           });
-          console.log('result', result);
           return Promise.resolve(new MsgResult(true, 'success', result));
-        } catch (error) {
+        }catch (error){
           return Promise.resolve(new MsgResult(false, `${error}`));
         }
-      } else {
-        return Promise.resolve(new MsgResult(false, '参数错误'));
-      }
     } else {
-      return Promise.resolve(new MsgResult(false, '用户已存在'));
+      return Promise.resolve(new MsgResult(false, '该商品已存在'));
     }
   }
-  async queryName(username:string):Promise<MsgResult>{
-    console.log('username',username)
-    if(username!=''){
-      const isExistUser: UserLogin = await this.loginModel.findOne({username}).exec()
-      if(isExistUser){
-        return Promise.resolve(new MsgResult(true,"success",{isExist:true}))
-      }else{
-        return Promise.resolve(new MsgResult(true,"success",{isExist:false}))
-      }
-    }else{
-      return Promise.resolve(new MsgResult(false,"参数错误"))
+  async edit(params: goodsParams): Promise<MsgResult> {
+    if(params.goodsName==""||params.goodsType==""||params.goodsModel==""){
+      return Promise.resolve(new MsgResult(false, '参数错误'));
     }
-
-
-
-    
+    const result: any = await this.goodsModel
+      .updateOne({goodsNum:params.goodsNum},params)
+      .exec();
+      console.log("查找替换",result)
+    if (result&&result.ok==1) {
+      return Promise.resolve(new MsgResult(true, 'success'));
+    } else {
+      return Promise.resolve(new MsgResult(false, '修改失败'));
+    }
   }
+  async editMany(params: {list:goodsParams[],type:boolean}): Promise<MsgResult> {
+    if(params.list.length==0){
+      return Promise.resolve(new MsgResult(false, '参数错误'));
+    }
+    const data:string[] = params.list.map(item=>item.goodsNum)
+    const result: any = await this.goodsModel
+      .updateMany({goodsNum:{$in : data}},{$set:{goodsState:params.type}})
+      .exec();
+      console.log("查找替换",result)
+    if (result&&result.ok==1) {
+      return Promise.resolve(new MsgResult(true, 'success'));
+    } else {
+      return Promise.resolve(new MsgResult(false, '修改失败'));
+    }
+  }
+  async delete(params: goodsParams): Promise<MsgResult> {
+    if(params.goodsNum==""){
+      return Promise.resolve(new MsgResult(false, '参数错误'));
+    }
+    const result: any = await this.goodsModel
+      .deleteOne({goodsNum:params.goodsNum})
+      .exec();
+      console.log("删除",result)
+    if (result&&result.ok==1) {
+      return Promise.resolve(new MsgResult(true, 'success'));
+    } else {
+      return Promise.resolve(new MsgResult(false, '删除失败'));
+    }
+  }
+  async deleteMany(params: goodsParams[]): Promise<MsgResult> {
+    if(params.length==0){
+      return Promise.resolve(new MsgResult(false, '参数错误'));
+    }
+    const list:string[] = params.map(item=>item.goodsNum)
+    const result: any = await this.goodsModel
+      .deleteMany({goodsNum:{$in:list}})
+      .exec();
+      console.log("批量删除",result)
+    if (result&&result.ok==1) {
+      return Promise.resolve(new MsgResult(true, 'success'));
+    } else {
+      return Promise.resolve(new MsgResult(false, '批量删除失败'));
+    }
+  }
+  async find(goodsDto:goodsDto,page:Page):Promise<MsgResult>{
+    console.log("2",goodsDto,page)
+    const searchParam = new GoodsQc(goodsDto)
+    const goods:goods[] =  await this.goodsModel.countDocuments(searchParam).exec().then((cnt: number) => {
+      page.total = cnt
+      return this.goodsModel.find(searchParam).skip(page.start).limit(page.limit).exec()
+    })
+    page.data = goods
+    return Promise.resolve(new MsgResult(true,"success",page))
+  }
+  
+  
+  
 }

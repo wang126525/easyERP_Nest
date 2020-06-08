@@ -1,24 +1,20 @@
 import * as mongoose from 'mongoose';
 import { Types } from 'mongoose';
 
-export const UserSchema = new mongoose.Schema(
+export const goodsSchema = new mongoose.Schema(
   {
     _id: Types.ObjectId,
-    name: String,
-    age: Number,
-    dsc: String,
+    goodsNum: String,
+    goodsName: String,
+    goodsType: String,
+    goodsUnit: String,
+    goodsModel: String,
+    goodsSpec: String,
+    stockPrice: String,
+    goodsPrice: String,
+    supplierName: String,
+    goodsAddTime: Date,
+    goodsState:Boolean
   },
-  { collection: 'usertext', versionKey: false },
-);
-
-export const LoginSchema = new mongoose.Schema(
-  {
-    _id: Types.ObjectId,
-    username: String,
-    password: String,
-    userole: String,
-    addtime: String,
-    edittime:String
-  },
-  { collection: 'user', versionKey: false },
+  { collection: 'goods', versionKey: false },
 );

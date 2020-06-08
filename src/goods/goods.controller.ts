@@ -1,42 +1,53 @@
 import { Controller, Get, Post, Body, Query, UseInterceptors, } from '@nestjs/common';
-import { LoginService } from './goods.service';
-import { MsgResult } from '../common/common.dto';
-import { LoginParams, RegisterParams,  } from './goods.interface';
+import { GoodsService } from './goods.service';
+import { MsgResult, Page } from '../common/common.dto';
+import { goods, goodsParams,GoodsQc,goodsDto } from './goods.interface';
 import LoginInterceptor from '../common/login.interceptor';
-import { query } from 'express';
-
-@Controller("/api/admin")
-export class LoginController {
-  constructor(private readonly loginService: LoginService) {}
-
-  @Post("queryName")
-  queryName(@Body("username") username:string): Promise<MsgResult> {
-    console.log(username)
-    return this.loginService.queryName(username);
-  }
-
-  @Post("register")
-  register(@Body() params:RegisterParams):Promise<MsgResult>{
-    return this.loginService.register(params);
-
-  }
-
-  @Post("login")
-  login(@Body() params:LoginParams): Promise<MsgResult> {
-    return this.loginService.login(params);
-  }
-
-}
+// import { query } from 'express';
+import PageTransform from '../common/page.transform'
 
 
 @UseInterceptors(LoginInterceptor)
-@Controller("/api/common")
-export class GetUserInfoController {
-  constructor(private readonly loginService: LoginService) {}
+@Controller("/api/goods")
+export class GoodsController {
+  constructor(private readonly goodsService: GoodsService) {}
 
-  @Get("getuser")
-  getUserInfo(@Query() query:LoginParams): Promise<MsgResult> {
-    return this.loginService.getInfo(query);
+  @Post("add")
+  addGoods(@Body() params:goodsParams):Promise<MsgResult>{
+
+    return this.goodsService.add(params);
   }
+
+  @Post("edit")
+  editGoods(@Body() params:goodsParams):Promise<MsgResult>{
+    console.log("edit",params)
+    return this.goodsService.edit(params);
+  }
+
+  @Post("editMany")
+  editManyGoods(@Body() params:{list:goodsParams[],type:boolean}):Promise<MsgResult>{
+    console.log("edit",params)
+    return this.goodsService.editMany(params);
+  }
+
+  @Post("delete")
+  deleteGoods(@Body() params:goodsParams):Promise<MsgResult>{
+    console.log("delete",params)
+    return this.goodsService.delete(params);
+  }
+
+  @Post("deleteMany")
+  deleteManyGoods(@Body() params:goodsParams[]):Promise<MsgResult>{
+    console.log("delete",params)
+    return this.goodsService.deleteMany(params);
+  }
+
+  @Get("pagination")
+  getGoodsList(@Query() goodsDto: goodsDto, @Query(PageTransform) page: Page): Promise<MsgResult> {
+
+    return this.goodsService.find(goodsDto,page);
+  }
+
+
   
 }
