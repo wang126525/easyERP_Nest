@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Query, UseInterceptors, } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, UseInterceptors, ValidationPipe,UseFilters } from '@nestjs/common';
 import { SupplierService } from './supplier.service';
 import { MsgResult, Page } from '../common/common.dto';
 import { supplier, supplierParams,SupplierQc,supplierDto } from './supplier.interface';
 import LoginInterceptor from '../common/login.interceptor';
+import {HttpExceptionFilter} from '../common/http-exception.filter';
 // import { query } from 'express';
 import PageTransform from '../common/page.transform'
 
@@ -13,13 +14,15 @@ export class SupplierController {
   constructor(private readonly supplierService: SupplierService) {}
 
   @Post("add")
-  addSupplier(@Body() params:supplierParams):Promise<MsgResult>{
+  @UseFilters(HttpExceptionFilter)
+  addSupplier(@Body(ValidationPipe) params:supplierDto):Promise<MsgResult>{
 
     return this.supplierService.add(params);
   }
 
   @Post("edit")
-  editSupplier(@Body() params:supplierParams):Promise<MsgResult>{
+  @UseFilters(HttpExceptionFilter)
+  editSupplier(@Body(ValidationPipe) params:supplierDto):Promise<MsgResult>{
     console.log("edit",params)
     return this.supplierService.edit(params);
   }

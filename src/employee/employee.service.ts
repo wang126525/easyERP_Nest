@@ -25,7 +25,7 @@ export class EmployeeService {
         try {
           const result: employee = await this.employeeModel.create({
             _id: id,
-            empNum: id,
+            empNum: id.toString(),
             empName: params.empName,
             empAge: params.empAge,
             empSex: params.empSex,

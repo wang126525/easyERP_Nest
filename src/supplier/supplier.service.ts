@@ -26,7 +26,7 @@ export class SupplierService {
         try {
           const result: supplier = await this.supplierModel.create({
             _id: id,
-            supplierNum: id,
+            supplierNum: id.toString(),
             supplierName: params.supplierName,
             supplierLegalPerson: params.supplierLegalPerson,
             supplierPhone: params.supplierPhone,

@@ -1,20 +1,29 @@
 import { Document, Types } from 'mongoose'
 import BaseQc from '../common/base.qc'
 import CommonUtils from '../common/common.util'
+import { IsNotEmpty,Length,Matches,ValidateIf,IsMobilePhone } from 'class-validator';
 
 /**
  * 供应商列表
  */
-export interface supplier extends Document {
+export class supplierDto {
   _id: Types.ObjectId
   supplierNum:string//供应商编码
+  @IsNotEmpty({message:'请输入供应商名称'})
   supplierName: string//供应商名称
+  @IsNotEmpty({message:'请输入供应商法人'})
   supplierLegalPerson: string//供应商法人
+  @IsNotEmpty({message:'请输入手机号'})
+  @IsMobilePhone('zh-CN',{},{message:'请输入正确的手机号'})
   supplierPhone: string//供应商电话
   supplierCompanyAddr: string//供应商公司地址
   supplierCompanyAddrDetail: string//供应商详细地址
   supplierIsUse:boolean//使用启用
 
+}
+
+export interface supplier extends Document,supplierDto {
+  _id: Types.ObjectId
 }
 
 /**

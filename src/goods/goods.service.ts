@@ -25,7 +25,7 @@ export class GoodsService {
         try {
           const result: goods = await this.goodsModel.create({
             _id: id,
-            goodsNum: id,
+            goodsNum: id.toString(),
             goodsName: params.goodsName,
             goodsType: params.goodsType,
             goodsUnit: params.goodsUnit,

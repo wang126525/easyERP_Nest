@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Query, UseInterceptors, } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, UseInterceptors, ValidationPipe,UseFilters } from '@nestjs/common';
 import { EmployeeService } from './employee.service';
 import { MsgResult, Page } from '../common/common.dto';
 import { employee, employeeParams,EmployeeQc,employeeDto } from './employee.interface';
 import LoginInterceptor from '../common/login.interceptor';
+import {HttpExceptionFilter} from '../common/http-exception.filter';
 // import { query } from 'express';
 import PageTransform from '../common/page.transform'
 
@@ -13,13 +14,15 @@ export class EmployeeController {
   constructor(private readonly employeeService: EmployeeService) {}
 
   @Post("add")
-  addEmployee(@Body() params:employeeParams):Promise<MsgResult>{
+  @UseFilters(HttpExceptionFilter)
+  addEmployee(@Body(ValidationPipe) params:employeeDto):Promise<MsgResult>{
 
     return this.employeeService.add(params);
   }
 
   @Post("edit")
-  editEmployee(@Body() params:employeeParams):Promise<MsgResult>{
+  @UseFilters(HttpExceptionFilter)
+  editEmployee(@Body(ValidationPipe) params:employeeDto):Promise<MsgResult>{
     console.log("edit",params)
     return this.employeeService.edit(params);
   }

@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Query, UseInterceptors, ValidationPipe, UseFilters } from '@nestjs/common';
-import { GoodsService } from './goods.service';
+import { GoodsTypeService } from './goodstype.service';
 import { MsgResult, Page } from '../common/common.dto';
-import { goods, goodsParams,GoodsQc,goodsDto } from './goods.interface';
+import { goodstype, goodstypeParams,goodstypeDto } from './goodstype.interface';
 import LoginInterceptor from '../common/login.interceptor';
 import {TransformInterceptor} from '../common/httpException.interceptor';
 import {HttpExceptionFilter} from '../common/http-exception.filter';
@@ -9,44 +9,44 @@ import {HttpExceptionFilter} from '../common/http-exception.filter';
 import PageTransform from '../common/page.transform'
 
 @UseInterceptors(LoginInterceptor)
-@Controller("/api/goods")
-export class GoodsController {
-  constructor(private readonly goodsService: GoodsService) {}
+@Controller("/api/goodstype")
+export class GoodsTypeController {
+  constructor(private readonly goodsService: GoodsTypeService) {}
 
   @Post("add")
   @UseFilters(HttpExceptionFilter)
-  addGoods(@Body(new ValidationPipe()) params:goodsDto):Promise<MsgResult>{
+  addGoods(@Body(new ValidationPipe()) params:goodstypeDto):Promise<MsgResult>{
 
     return this.goodsService.add(params);
   }
 
   @Post("edit")
   @UseFilters(HttpExceptionFilter)
-  editGoods(@Body(new ValidationPipe()) params:goodsDto):Promise<MsgResult>{
+  editGoods(@Body(new ValidationPipe()) params:goodstypeDto):Promise<MsgResult>{
     console.log("edit",params)
     return this.goodsService.edit(params);
   }
 
   @Post("editMany")
-  editManyGoods(@Body() params:{list:goodsParams[],type:boolean}):Promise<MsgResult>{
+  editManyGoods(@Body() params:{list:goodstypeParams[],type:boolean}):Promise<MsgResult>{
     console.log("edit",params)
     return this.goodsService.editMany(params);
   }
 
   @Post("delete")
-  deleteGoods(@Body() params:goodsParams):Promise<MsgResult>{
+  deleteGoods(@Body() params:goodstypeParams):Promise<MsgResult>{
     console.log("delete",params)
     return this.goodsService.delete(params);
   }
 
   @Post("deleteMany")
-  deleteManyGoods(@Body() params:goodsParams[]):Promise<MsgResult>{
+  deleteManyGoods(@Body() params:goodstypeParams[]):Promise<MsgResult>{
     console.log("delete",params)
     return this.goodsService.deleteMany(params);
   }
 
   @Get("pagination")
-  getGoodsList(@Query() goodsDto: goodsDto, @Query(PageTransform) page: Page): Promise<MsgResult> {
+  getGoodsList(@Query() goodsDto: goodstypeDto, @Query(PageTransform) page: Page): Promise<MsgResult> {
 
     return this.goodsService.find(goodsDto,page);
   }
