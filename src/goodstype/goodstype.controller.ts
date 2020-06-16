@@ -12,7 +12,6 @@ import PageTransform from '../common/page.transform'
 @Controller("/api/goodstype")
 export class GoodsTypeController {
   constructor(private readonly goodsService: GoodsTypeService) {}
-
   @Post("add")
   @UseFilters(HttpExceptionFilter)
   addGoods(@Body(new ValidationPipe()) params:goodstypeDto):Promise<MsgResult>{

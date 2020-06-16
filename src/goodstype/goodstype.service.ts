@@ -32,7 +32,7 @@ export class GoodsTypeService {
           return Promise.resolve(new MsgResult(false, `${error}`));
         }
     } else {
-      return Promise.resolve(new MsgResult(false, '该商品已存在'));
+      return Promise.resolve(new MsgResult(false, '该商品分类已存在'));
     }
   }
   async edit(params: goodstypeParams): Promise<MsgResult> {
